@@ -43,7 +43,7 @@ const MainNavbar = ({ onCreateClick }: { onCreateClick: () => void }) => {
               variant="outline"
               size="sm"
               className="border-gray-300 text-gray-700 hover:bg-gray-50 transition-colors duration-200 max-sm:text-sm"
-              onClick={() => router.push("/analysis/reports")}
+              onClick={() => router.push("/analytics/reports")}
             >
               View analytics
             </Button>

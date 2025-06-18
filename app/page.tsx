@@ -172,15 +172,15 @@ export default function HomePage() {
 
 
   return (
-    <div className="px-20 max-sm:px-4 pt-20 bg-gray-50 min-h-screen">
+    <div className="px-20 max-sm:px-4 pt-14 bg-gray-50 min-h-screen">
       {/* Header */}
       <motion.div
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
-        className="z-[1000] bg-white shadow-md px-4 sm:px-6 lg:px-8"
+        className="fixed right-0 left-[17vw] max-sm:left-0 z-[1000] bg-white shadow-md px-4 sm:px-6 lg:px-8"
       >
-        <div className="mx-auto max-w-7xl py-4 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+        <div className="mx-auto max-w-7xl py-4 flex flex-col max-sm:flex-row sm:flex-row justify-between items-start sm:items-center gap-4">
           <h1 className="text-xl font-semibold text-gray-900 md:text-2xl max-sm:text-xl">
             Home
           </h1>
@@ -190,7 +190,7 @@ export default function HomePage() {
                 <Button
                   variant="outline"
                   size="sm"
-                  className="border-gray-300 text-gray-700 bg-white hover:bg-gray-50 transition-colors duration-200 max-sm:text-sm"
+                  className="border-gray-300 text-gray-700 bg-white hover:bg-gray-50 transition-colors duration-200 max-sm:px-3 max-sm:text-sm"
                 >
                   Quick actions <ChevronDown className="ml-2 h-4 w-4" />
                 </Button>
@@ -205,7 +205,7 @@ export default function HomePage() {
 
             <Button
               size="sm"
-              className="bg-teal-600 hover:bg-teal-700 text-white px-6 transition-colors duration-200 max-sm:text-sm"
+              className="bg-teal-600 hover:bg-teal-700 text-white px-6 transition-colors duration-200 max-sm:text-sm max-sm:px-3"
             >
               Create email
             </Button>
@@ -219,7 +219,7 @@ export default function HomePage() {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.2, duration: 0.5 }}
-        className="my-8"
+        className="mb-8 mt-20"
       >
         <Card className="bg-gray-50 border-none">
           <CardContent className="p-6">

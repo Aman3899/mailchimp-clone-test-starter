@@ -60,7 +60,7 @@ export function Sidebar() {
     {
       name: "Create",
       icon: Pencil,
-      href: "/create",
+      href: "/",
       isCreateButton: true,
     },
     {
@@ -208,7 +208,7 @@ export function Sidebar() {
                           key={subItem.name}
                           href={subItem.href}
                           className={cn(
-                            "block px-3 py-1.5 text-sm rounded-md transition-all duration-200",
+                            "block px-3 py-1 text-sm rounded-md transition-all duration-200",
                             isSubActive
                               ? "bg-gray-100 text-gray-900 font-medium"
                               : "text-gray-600 hover:bg-gray-50 hover:text-gray-900",
