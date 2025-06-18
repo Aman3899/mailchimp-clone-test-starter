@@ -1,348 +1,484 @@
 "use client"
 
-import React, { useState, useEffect } from 'react';
-import { ArrowRight, ChevronLeft, ChevronRight, Users, Zap, Mail, Palette, Tag, FileText, Sparkles } from "lucide-react";
+import { useState } from "react"
+import { Button } from "@/components/ui/button"
+import { Card, CardContent } from "@/components/ui/card"
+import { Badge } from "@/components/ui/badge"
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
+import {
+  ChevronDown, ChevronLeft, ChevronRight, Mail, Zap, ArrowRight,
+  Percent, FileText, Gift, UserPlus, Link2, Image, Users, CogIcon, Palette
+} from "lucide-react"
+import { motion, AnimatePresence } from "framer-motion"
+import Link from "next/link"
 
-export default function Home() {
-  const [currentTemplateIndex, setCurrentTemplateIndex] = useState(0);
-  const [currentPopupIndex, setCurrentPopupIndex] = useState(0);
-  const [isVisible, setIsVisible] = useState(false);
+export default function HomePage() {
+  const [currentTemplateIndex, setCurrentTemplateIndex] = useState(0)
+  const [currentPopupIndex, setCurrentPopupIndex] = useState(0)
 
-  useEffect(() => {
-    setIsVisible(true);
-  }, []);
+  interface SetupTask {
+    id: number;
+    icon: React.ReactNode;
+    title: string;
+    description: string;
+    time?: string;
+  }
+
 
   const setupTasks = [
     {
+      id: 1,
+      icon: <Users />,
       title: "Add your contacts",
       description: "Upload your list of subscribers or import them from another app.",
-      icon: Users,
       time: "4 min",
-      color: "blue"
     },
     {
-      title: "Connect an integration", 
+      id: 2,
+      icon: <CogIcon />,
+      title: "Connect an integration",
       description: "Leverage data to create more automated, personalized omni-channel marketing communications.",
-      icon: Zap,
       time: "2 min",
-      color: "purple"
     },
     {
+      id: 3,
+      icon: <Palette />,
       title: "Import your brand",
-      description: "We'll create email templates with your fonts, logos, colors and more.",
-      icon: Palette,
+      description: "We’ll create email designs using your fonts, logos, colors and images.",
       time: "2 seconds",
-      color: "green"
-    }
+    },
+    {
+      id: 4,
+      icon: <UserPlus className="text-gray-500" />,
+      title: "Additional Task",
+      description: "This is an additional task for setup completion.",
+      time: "3 min",
+    },
   ];
 
-  const templates = [
+  const emailTemplates = [
     {
+      id: 1,
       title: "Custom email designs",
       type: "Made for you",
       category: "Email",
-      image: "/api/placeholder/300/400",
-      gradient: "from-blue-500 to-purple-600",
-      special: true
+      image: "/placeholder.svg?height=300&width=200",
+      description: "Professional designs tailored to your brand",
     },
     {
+      id: 2,
       title: "Real estate invite",
       type: "Email",
-      category: "Email", 
-      image: "/api/placeholder/300/400",
-      gradient: "from-green-500 to-teal-600"
+      category: "Email",
+      image: "/placeholder.svg?height=300&width=200",
+      description: "Perfect for real estate professionals",
     },
     {
+      id: 3,
       title: "Welcome new contacts",
       type: "Automation",
       category: "Automation",
-      image: "/api/placeholder/300/400", 
-      gradient: "from-purple-500 to-pink-600"
+      image: "/placeholder.svg?height=300&width=200",
+      description: "Automated welcome series for new subscribers",
     },
     {
+      id: 4,
       title: "Bold",
       type: "Email",
       category: "Email",
-      image: "/api/placeholder/300/400",
-      gradient: "from-orange-500 to-red-600",
-      free: true
+      image: "/placeholder.svg?height=300&width=200",
+      description: "Eye-catching bold design template",
     },
     {
+      id: 5,
       title: "Start from scratch",
-      type: "Email", 
+      type: "Email",
       category: "Email",
-      image: "/api/placeholder/300/400",
-      gradient: "from-gray-500 to-gray-700"
-    }
-  ];
+      image: "/placeholder.svg?height=300&width=200",
+      description: "Create your own unique design",
+    },
+  ]
 
   const popupForms = [
     {
+      id: 1,
       title: "Discount popup",
       description: "Offer a discount to new subscribers",
+      image: "/placeholder.svg?height=200&width=300",
       action: "See discount templates",
-      icon: Tag,
-      image: "/api/placeholder/300/200",
-      gradient: "from-orange-400 to-pink-500"
     },
     {
-      title: "Newsletter popup", 
+      id: 2,
+      title: "Newsletter popup",
       description: "Stay in the know",
+      image: "/placeholder.svg?height=200&width=300",
       action: "See newsletter templates",
-      icon: Mail,
-      image: "/api/placeholder/300/200",
-      gradient: "from-blue-400 to-indigo-600"
     },
     {
+      id: 3,
       title: "Free content popup",
-      description: "Download an e-book or guide", 
+      description: "Download an e-book or guide",
+      image: "/placeholder.svg?height=200&width=300",
       action: "See free content templates",
-      icon: FileText,
-      image: "/api/placeholder/300/200",
-      gradient: "from-green-400 to-teal-600"
-    }
-  ];
+    },
+  ]
 
-  const nextTemplate = () => {
-    setCurrentTemplateIndex((prev) => (prev + 1) % Math.ceil(templates.length / getVisibleTemplates()));
+  const templatesPerPage = 4
+  const totalTemplatePages = Math.ceil(emailTemplates.length / templatesPerPage)
+
+  const nextTemplates = () => {
+    setCurrentTemplateIndex((prev) => (prev + 1) % totalTemplatePages)
+  }
+
+  const prevTemplates = () => {
+    setCurrentTemplateIndex((prev) => (prev - 1 + totalTemplatePages) % totalTemplatePages)
+  }
+
+  const getCurrentTemplates = () => {
+    const start = currentTemplateIndex * templatesPerPage
+    return emailTemplates.slice(start, start + templatesPerPage)
+  }
+
+  const container = {
+    hidden: { opacity: 0 },
+    show: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.1,
+      },
+    },
+  }
+
+  const item = {
+    hidden: { opacity: 0, y: 20 },
+    show: { opacity: 1, y: 0, transition: { duration: 0.5 } },
+  }
+
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const visibleTasks = 3;
+
+  const handlePrevious = () => {
+    setCurrentIndex((prev) => Math.max(0, prev - 1));
   };
 
-  const prevTemplate = () => {
-    setCurrentTemplateIndex((prev) => (prev - 1 + Math.ceil(templates.length / getVisibleTemplates())) % Math.ceil(templates.length / getVisibleTemplates()));
+  const handleNext = () => {
+    setCurrentIndex((prev) =>
+      Math.min(setupTasks.length - visibleTasks, prev + 1)
+    );
   };
 
-  const nextPopup = () => {
-    setCurrentPopupIndex((prev) => (prev + 1) % popupForms.length);
-  };
+  const completedTasks = 0;
+  const progress = (completedTasks / setupTasks.length) * 100;
 
-  const prevPopup = () => {
-    setCurrentPopupIndex((prev) => (prev - 1 + popupForms.length) % popupForms.length);
-  };
-
-  const getVisibleTemplates = () => {
-    if (typeof window !== 'undefined') {
-      if (window.innerWidth >= 1024) return 4;
-      if (window.innerWidth >= 768) return 3;
-      if (window.innerWidth >= 640) return 2;
-    }
-    return 1;
-  };
 
   return (
-    <div className={`min-h-screen bg-gradient-to-br from-gray-50 to-white dark:from-gray-900 dark:to-gray-800 transition-all duration-1000 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
+    <div className="px-20 max-sm:px-4 pt-20 bg-gray-50 min-h-screen">
       {/* Header */}
-      <div className="sticky top-0 z-50 bg-white/80 dark:bg-gray-900/80 backdrop-blur-lg border-b border-gray-200/50 dark:border-gray-700/50">
-        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 p-4 md:p-6">
-          <h1 className="text-2xl md:text-3xl font-bold bg-gradient-to-r from-gray-900 to-gray-600 dark:from-white dark:to-gray-300 bg-clip-text text-transparent">
+      <motion.div
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+        className="z-[1000] bg-white shadow-md px-4 sm:px-6 lg:px-8"
+      >
+        <div className="mx-auto max-w-7xl py-4 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+          <h1 className="text-xl font-semibold text-gray-900 md:text-2xl max-sm:text-xl">
             Home
           </h1>
           <div className="flex items-center gap-3">
-            <button className="group relative px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg hover:border-gray-400 dark:hover:border-gray-500 transition-all duration-300 hover:shadow-lg hover:-translate-y-0.5">
-              <span className="relative z-10">Quick actions</span>
-              <div className="absolute inset-0 bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-900/20 dark:to-purple-900/20 opacity-0 group-hover:opacity-100 rounded-lg transition-opacity duration-300"></div>
-            </button>
-            <button className="group relative px-4 py-2 text-sm font-medium text-white bg-gradient-to-r from-teal-500 to-cyan-500 rounded-lg hover:from-teal-600 hover:to-cyan-600 transition-all duration-300 hover:shadow-xl hover:-translate-y-0.5 transform">
-              <span className="relative z-10">Create email</span>
-              <div className="absolute inset-0 bg-white/20 opacity-0 group-hover:opacity-100 rounded-lg transition-opacity duration-300"></div>
-            </button>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="border-gray-300 text-gray-700 bg-white hover:bg-gray-50 transition-colors duration-200 max-sm:text-sm"
+                >
+                  Quick actions <ChevronDown className="ml-2 h-4 w-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent>
+                <DropdownMenuItem>Create campaign</DropdownMenuItem>
+                <DropdownMenuItem>Import contacts</DropdownMenuItem>
+                <DropdownMenuItem>Create signup form</DropdownMenuItem>
+                <DropdownMenuItem>View reports</DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+
+            <Button
+              size="sm"
+              className="bg-teal-600 hover:bg-teal-700 text-white px-6 transition-colors duration-200 max-sm:text-sm"
+            >
+              Create email
+            </Button>
           </div>
         </div>
-      </div>
+      </motion.div>
 
-      <div className="max-w-7xl mx-auto p-4 md:p-6 space-y-8 md:space-y-12">
-        {/* Welcome Section */}
-        <div className="text-center space-y-4 py-8 md:py-12">
-          <h2 className="text-2xl md:text-4xl font-bold bg-gradient-to-r from-gray-900 via-blue-600 to-purple-600 dark:from-white dark:via-blue-400 dark:to-purple-400 bg-clip-text text-transparent animate-pulse">
-            Welcome, Amanullah! Let's dive in.
-          </h2>
-          <div className="w-24 h-1 bg-gradient-to-r from-teal-400 to-cyan-400 mx-auto rounded-full"></div>
-        </div>
 
-        {/* Setup Progress */}
-        <div className="bg-white/70 dark:bg-gray-800/70 backdrop-blur-lg rounded-2xl p-6 md:p-8 shadow-xl border border-gray-200/50 dark:border-gray-700/50 hover:shadow-2xl transition-all duration-500">
-          <div className="flex flex-col lg:flex-row gap-6 lg:gap-8">
-            <div className="lg:w-1/3 space-y-4">
-              <h3 className="text-xl font-bold text-gray-800 dark:text-white">Finish setting up your account</h3>
-              <div className="space-y-3">
-                <div className="flex items-center justify-between text-sm">
-                  <span className="text-gray-600 dark:text-gray-400">0%</span>
-                  <span className="text-gray-500 dark:text-gray-500">0 of 4 tasks completed</span>
+      {/* Account Setup Section */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.2, duration: 0.5 }}
+        className="my-8"
+      >
+        <Card className="bg-gray-50 border-none">
+          <CardContent className="p-6">
+            <div className="flex flex-col lg:flex-row gap-6">
+              {/* Left Section */}
+              <div className="lg:w-1/4">
+                <h2 className="text-lg font-semibold text-gray-900 mb-2">
+                  Finish setting up your account
+                </h2>
+                <div className="text-2xl font-bold text-gray-900 mb-1">0%</div>
+                <div className="text-sm text-gray-600 mb-4">
+                  {completedTasks} of {setupTasks.length} tasks completed
                 </div>
-                <div className="relative h-3 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
-                  <div className="absolute inset-0 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full transform -translate-x-full transition-transform duration-1000"></div>
-                  <div className="absolute inset-0 bg-gradient-to-r from-blue-500/20 to-purple-500/20 animate-pulse"></div>
+                <div className="w-full bg-gray-200 rounded-full h-2">
+                  <div
+                    className="bg-teal-600 h-2 rounded-full"
+                    style={{ width: `${progress}%` }}
+                  ></div>
+                </div>
+              </div>
+
+              {/* Right Section */}
+              <div className="lg:w-3/4">
+                <div className="relative">
+                  <AnimatePresence mode="wait">
+                    <motion.div
+                      key={currentIndex}
+                      initial={{ opacity: 0, x: 100 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      exit={{ opacity: 0, x: -100 }}
+                      transition={{ duration: 0.3 }}
+                      className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4"
+                    >
+                      {setupTasks
+                        .slice(currentIndex, currentIndex + visibleTasks)
+                        .map((task) => (
+                          <motion.div key={task.id} className="h-full">
+                            <Card className="h-full hover:shadow-md transition-shadow duration-200 cursor-pointer bg-white rounded-lg">
+                              <CardContent className="p-4 flex items-start gap-3">
+                                <div className="text-2xl text-gray-700 mt-1">{task.icon}</div>
+                                <div className="flex-1">
+                                  <h3 className="font-medium text-teal-700 mb-1">
+                                    {task.title}
+                                  </h3>
+                                  <p className="text-sm text-gray-600 leading-relaxed">
+                                    {task.description}
+                                  </p>
+                                  {task.time && (
+                                    <div className="text-xs text-gray-500 mt-2">
+                                      {task.time}
+                                    </div>
+                                  )}
+                                </div>
+                              </CardContent>
+                            </Card>
+                          </motion.div>
+                        ))}
+                    </motion.div>
+                  </AnimatePresence>
+
+                  {/* Navigation Buttons */}
+                  <div className="flex justify-end mt-4 gap-2">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={handlePrevious}
+                      disabled={currentIndex === 0}
+                      className="border-gray-300 text-gray-700"
+                    >
+                      &lt;
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={handleNext}
+                      disabled={currentIndex + visibleTasks >= setupTasks.length}
+                      className="border-gray-300 text-gray-700"
+                    >
+                      &gt;
+                    </Button>
+                  </div>
                 </div>
               </div>
             </div>
-            
-            <div className="lg:w-2/3 grid md:grid-cols-3 gap-4 md:gap-6">
-              {setupTasks.map((task, index) => (
-                <div key={index} className={`group relative bg-gradient-to-br ${task.color === 'blue' ? 'from-blue-50 to-blue-100 dark:from-blue-900/20 dark:to-blue-800/20' : task.color === 'purple' ? 'from-purple-50 to-purple-100 dark:from-purple-900/20 dark:to-purple-800/20' : 'from-green-50 to-green-100 dark:from-green-900/20 dark:to-green-800/20'} rounded-xl p-5 hover:shadow-lg transition-all duration-300 hover:-translate-y-1 cursor-pointer border border-white/50 dark:border-gray-700/50`}>
-                  <div className="flex items-start justify-between mb-3">
-                    <div className={`p-2.5 rounded-full bg-gradient-to-r ${task.color === 'blue' ? 'from-blue-500 to-blue-600' : task.color === 'purple' ? 'from-purple-500 to-purple-600' : 'from-green-500 to-green-600'} shadow-lg`}>
-                      <task.icon className="h-5 w-5 text-white" />
+          </CardContent>
+        </Card>
+      </motion.div>
+
+      {/* Email Templates Section */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.4, duration: 0.5 }}
+        className="mb-8 bg-white shadow-sm p-6 rounded-lg border-2"
+      >
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
+          <h2 className="text-xl font-semibold text-gray-900">Top templates for Amanullah</h2>
+          <Link
+            href="/templates"
+            className="text-teal-600 hover:text-teal-700 flex items-center gap-1 text-sm font-medium"
+          >
+            View all email templates
+            <ArrowRight className="h-4 w-4" />
+          </Link>
+        </div>
+
+        <div className="relative">
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={currentTemplateIndex}
+              initial={{ opacity: 0, x: 50 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: -50 }}
+              transition={{ duration: 0.3 }}
+              className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4"
+            >
+              {getCurrentTemplates().map((template, index) => (
+                <Card key={template.id} className="bg-white shadow-sm hover:shadow-md transition-shadow duration-200">
+                  <CardContent className="p-0">
+                    <div className="aspect-[3/4] bg-gray-100 rounded-t-lg overflow-hidden">
+                      <div className="w-full h-full bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center">
+                        <div className="text-center">
+                          <div className="w-16 h-16 bg-white rounded-lg shadow-sm mx-auto mb-2 flex items-center justify-center">
+                            {template.category === "Email" ? (
+                              <Mail className="h-8 w-8 text-gray-400" />
+                            ) : (
+                              <Zap className="h-8 w-8 text-gray-400" />
+                            )}
+                          </div>
+                          <div className="text-xs text-gray-500">{template.title}</div>
+                        </div>
+                      </div>
                     </div>
-                    <span className="text-xs text-gray-500 dark:text-gray-400 bg-white/80 dark:bg-gray-800/80 px-2 py-1 rounded-full">
-                      {task.time}
-                    </span>
-                  </div>
-                  <h4 className="font-semibold text-gray-800 dark:text-white mb-2 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
-                    {task.title}
-                  </h4>
-                  <p className="text-sm text-gray-600 dark:text-gray-400 leading-relaxed">
-                    {task.description}
-                  </p>
-                  <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/5 to-white/0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-xl"></div>
-                </div>
+                    <div className="p-4">
+                      <div className="flex items-center gap-2 mb-2">
+                        {template.type === "Made for you" ? (
+                          <Badge className="bg-blue-100 text-blue-700 text-xs">Made for you</Badge>
+                        ) : template.category === "Email" ? (
+                          <div className="flex items-center gap-1 text-xs text-gray-600">
+                            <Mail className="h-3 w-3" />
+                            Email
+                          </div>
+                        ) : (
+                          <div className="flex items-center gap-1 text-xs text-gray-600">
+                            <Zap className="h-3 w-3" />
+                            Automation
+                          </div>
+                        )}
+                      </div>
+                      <h3 className="font-medium text-gray-900 mb-1">{template.title}</h3>
+                      {template.id === emailTemplates.length && (
+                        <Button variant="ghost" className="text-teal-600 hover:text-teal-700 p-0 h-auto text-sm">
+                          Start from scratch
+                        </Button>
+                      )}
+                    </div>
+                  </CardContent>
+                </Card>
               ))}
+            </motion.div>
+          </AnimatePresence>
+
+          {/* Navigation */}
+          <div className="flex items-center justify-between mt-6">
+            <Button
+              variant="outline"
+              size="icon"
+              onClick={prevTemplates}
+              disabled={currentTemplateIndex === 0}
+              className="h-8 w-8"
+            >
+              <ChevronLeft className="h-4 w-4" />
+            </Button>
+
+            <div className="flex items-center gap-2">
+              <span className="text-sm text-gray-600">
+                {currentTemplateIndex + 1} of {totalTemplatePages}
+              </span>
             </div>
+
+            <Button
+              variant="outline"
+              size="icon"
+              onClick={nextTemplates}
+              disabled={currentTemplateIndex === totalTemplatePages - 1}
+              className="h-8 w-8"
+            >
+              <ChevronRight className="h-4 w-4" />
+            </Button>
           </div>
         </div>
+      </motion.div>
 
-        {/* Templates Section */}
-        <div className="space-y-6">
-          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-            <h2 className="text-2xl font-bold text-gray-800 dark:text-white">Top templates for Amanullah</h2>
-            <button className="group flex items-center text-teal-600 dark:text-teal-400 hover:text-teal-700 dark:hover:text-teal-300 font-medium transition-colors duration-300">
-              View all email templates 
-              <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform duration-300" />
-            </button>
+      {/* Popup Forms Section */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.6, duration: 0.5 }}
+        className="mb-8 bg-white shadow-sm p-6 rounded-lg border-2"
+      >
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
+          <div className="flex items-center gap-3">
+            <h2 className="text-xl font-semibold text-gray-900">Grow your audience with custom popup forms</h2>
+            <Badge className="bg-purple-100 text-purple-700">Beta</Badge>
           </div>
+          <Link
+            href="/forms/popup"
+            className="text-teal-600 hover:text-teal-700 flex items-center gap-1 text-sm font-medium"
+          >
+            View all popup forms
+            <ArrowRight className="h-4 w-4" />
+          </Link>
+        </div>
 
-          <div className="relative">
-            <div className="overflow-hidden">
-              <div 
-                className="flex transition-transform duration-500 ease-in-out gap-4 md:gap-6"
-                style={{ transform: `translateX(-${currentTemplateIndex * (100 / Math.ceil(templates.length / getVisibleTemplates()))}%)` }}
-              >
-                {templates.map((template, index) => (
-                  <div key={index} className="flex-shrink-0 w-full sm:w-1/2 md:w-1/3 lg:w-1/4">
-                    <div className="group relative bg-white dark:bg-gray-800 rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-500 hover:-translate-y-2 border border-gray-200/50 dark:border-gray-700/50">
-                      <div className={`relative h-48 md:h-56 bg-gradient-to-br ${template.gradient} overflow-hidden`}>
-                        <div className="absolute inset-0 bg-black/10 group-hover:bg-black/20 transition-colors duration-300"></div>
-                        <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent"></div>
-                        {template.free && (
-                          <div className="absolute top-3 right-3 bg-gradient-to-r from-green-500 to-green-600 text-white text-xs font-bold px-2 py-1 rounded-full shadow-lg">
-                            FREE
-                          </div>
-                        )}
-                        {template.special && (
-                          <div className="absolute top-3 left-3 flex items-center gap-1 bg-white/90 dark:bg-gray-800/90 text-blue-600 dark:text-blue-400 text-xs font-medium px-2 py-1 rounded-full shadow-lg">
-                            <Sparkles className="h-3 w-3" />
-                            Made for you
-                          </div>
-                        )}
-                        <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                          <div className="absolute inset-0 bg-gradient-to-t from-blue-600/20 via-purple-600/10 to-transparent"></div>
+        <p className="text-gray-600 mb-6">
+          Popups with incentives convert best. Choose the incentive you want to offer people who sign up through your
+          form.
+        </p>
+
+        <motion.div
+          variants={container}
+          initial="hidden"
+          animate="show"
+          className="grid grid-cols-1 md:grid-cols-3 gap-6"
+        >
+          {popupForms.map((popup, index) => (
+            <motion.div key={popup.id} variants={item}>
+              <Card className="bg-white shadow-sm hover:shadow-md transition-shadow duration-200">
+                <CardContent className="p-0">
+                  <div className="aspect-[4/3] bg-gradient-to-br from-gray-100 to-gray-200 rounded-t-lg overflow-hidden">
+                    <div className="w-full h-full flex items-center justify-center">
+                      <div className="text-center">
+                        <div className="w-20 h-20 bg-white rounded-lg shadow-sm mx-auto mb-3 flex items-center justify-center">
+                          {index === 0 && <Percent className="h-10 w-10 text-orange-500" />}
+                          {index === 1 && <Mail className="h-10 w-10 text-blue-500" />}
+                          {index === 2 && <Gift className="h-10 w-10 text-green-500" />}
                         </div>
+                        <div className="text-sm font-medium text-gray-700">{popup.title}</div>
                       </div>
-                      <div className="p-4 space-y-2">
-                        <h3 className="font-semibold text-gray-800 dark:text-white group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors duration-300">
-                          {template.title}
-                        </h3>
-                        <div className="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400">
-                          {template.category === "Email" ? <Mail className="h-3 w-3" /> : template.category === "Automation" ? <Zap className="h-3 w-3" /> : <Sparkles className="h-3 w-3" />}
-                          {template.category}
-                        </div>
-                      </div>
-                      <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 translate-x-[-100%] group-hover:translate-x-[100%] duration-1000"></div>
                     </div>
                   </div>
-                ))}
-              </div>
-            </div>
-
-            <div className="flex items-center justify-center gap-3 mt-6">
-              <button 
-                onClick={prevTemplate}
-                className="group p-2 rounded-full bg-white dark:bg-gray-800 shadow-lg hover:shadow-xl border border-gray-200/50 dark:border-gray-700/50 hover:border-gray-300 dark:hover:border-gray-600 transition-all duration-300 hover:-translate-y-0.5"
-              >
-                <ChevronLeft className="h-5 w-5 text-gray-600 dark:text-gray-400 group-hover:text-gray-800 dark:group-hover:text-white transition-colors" />
-              </button>
-              <div className="flex items-center gap-2 px-3 py-1 bg-gray-100 dark:bg-gray-800 rounded-full text-sm text-gray-600 dark:text-gray-400">
-                <span>{currentTemplateIndex + 1}</span>
-                <span>of</span>
-                <span>{Math.ceil(templates.length / getVisibleTemplates())}</span>
-              </div>
-              <button 
-                onClick={nextTemplate}
-                className="group p-2 rounded-full bg-white dark:bg-gray-800 shadow-lg hover:shadow-xl border border-gray-200/50 dark:border-gray-700/50 hover:border-gray-300 dark:hover:border-gray-600 transition-all duration-300 hover:-translate-y-0.5"
-              >
-                <ChevronRight className="h-5 w-5 text-gray-600 dark:text-gray-400 group-hover:text-gray-800 dark:group-hover:text-white transition-colors" />
-              </button>
-            </div>
-          </div>
-        </div>
-
-        {/* Popup Forms Section */}
-        <div className="space-y-6">
-          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-            <div className="space-y-2">
-              <h2 className="text-2xl font-bold text-gray-800 dark:text-white flex items-center gap-2">
-                Grow your audience with custom popup forms
-                <span className="bg-gradient-to-r from-purple-500 to-pink-500 text-white text-xs font-bold px-2 py-1 rounded-full">
-                  Beta
-                </span>
-              </h2>
-              <p className="text-gray-600 dark:text-gray-400">
-                Popups with incentives convert best. Choose the incentive you want to offer people who sign up through your form.
-              </p>
-            </div>
-            <button className="group flex items-center text-teal-600 dark:text-teal-400 hover:text-teal-700 dark:hover:text-teal-300 font-medium transition-colors duration-300">
-              View all popup forms
-              <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform duration-300" />
-            </button>
-          </div>
-
-          <div className="grid md:grid-cols-3 gap-6 md:gap-8">
-            {popupForms.map((popup, index) => (
-              <div key={index} className="group relative bg-white dark:bg-gray-800 rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-500 hover:-translate-y-2 border border-gray-200/50 dark:border-gray-700/50">
-                <div className={`relative h-40 bg-gradient-to-br ${popup.gradient} overflow-hidden`}>
-                  <div className="absolute inset-0 bg-black/10 group-hover:bg-black/20 transition-colors duration-300"></div>
-                  <div className="absolute inset-0 flex items-center justify-center">
-                    <popup.icon className="h-12 w-12 text-white/80 group-hover:text-white transition-colors duration-300 group-hover:scale-110 transform" />
+                  <div className="p-6">
+                    <div className="flex items-center gap-2 mb-3">
+                      {index === 0 && <Percent className="h-4 w-4 text-gray-600" />}
+                      {index === 1 && <Zap className="h-4 w-4 text-gray-600" />}
+                      {index === 2 && <FileText className="h-4 w-4 text-gray-600" />}
+                      <h3 className="font-medium text-gray-900">{popup.title}</h3>
+                    </div>
+                    <p className="text-gray-600 text-sm mb-4">{popup.description}</p>
+                    <Button variant="ghost" className="text-teal-600 hover:text-teal-700 p-0 h-auto text-sm">
+                      {popup.action}
+                    </Button>
                   </div>
-                  <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                    <div className="absolute inset-0 bg-gradient-to-t from-white/10 via-transparent to-transparent"></div>
-                  </div>
-                </div>
-                <div className="p-6 space-y-4">
-                  <div className="space-y-2">
-                    <h3 className="font-bold text-lg text-gray-800 dark:text-white group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors duration-300">
-                      {popup.title}
-                    </h3>
-                    <p className="text-gray-600 dark:text-gray-400 text-sm">
-                      {popup.description}
-                    </p>
-                  </div>
-                  <button className="group/btn text-teal-600 dark:text-teal-400 hover:text-teal-700 dark:hover:text-teal-300 text-sm font-medium transition-colors duration-300 flex items-center gap-1">
-                    {popup.action}
-                    <ArrowRight className="h-3 w-3 group-hover/btn:translate-x-1 transition-transform duration-300" />
-                  </button>
-                </div>
-                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 translate-x-[-100%] group-hover:translate-x-[100%] duration-1000"></div>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        {/* Additional Section - Start from Scratch */}
-        <div className="bg-gradient-to-r from-gray-50 to-blue-50 dark:from-gray-800 dark:to-blue-900/20 rounded-2xl p-8 text-center border border-gray-200/50 dark:border-gray-700/50 hover:shadow-xl transition-all duration-500">
-          <div className="space-y-4">
-            <div className="w-16 h-16 bg-gradient-to-r from-blue-500 to-purple-600 rounded-2xl flex items-center justify-center mx-auto shadow-lg">
-              <Sparkles className="h-8 w-8 text-white" />
-            </div>
-            <h3 className="text-xl font-bold text-gray-800 dark:text-white">Start from scratch</h3>
-            <p className="text-gray-600 dark:text-gray-400 max-w-md mx-auto">
-              Create your own unique design with our drag-and-drop email builder
-            </p>
-            <button className="group bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white font-medium px-6 py-3 rounded-lg transition-all duration-300 hover:shadow-lg hover:-translate-y-0.5 transform">
-              <span className="relative z-10">Get started</span>
-              <div className="absolute inset-0 bg-white/20 opacity-0 group-hover:opacity-100 rounded-lg transition-opacity duration-300"></div>
-            </button>
-          </div>
-        </div>
-      </div>
+                </CardContent>
+              </Card>
+            </motion.div>
+          ))}
+        </motion.div>
+      </motion.div>
     </div>
-  );
+  )
 }

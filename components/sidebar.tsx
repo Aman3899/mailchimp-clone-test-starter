@@ -3,20 +3,7 @@
 import { useState, useEffect } from "react"
 import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation"
-import {
-  ChevronDown,
-  Globe,
-  Home,
-  Layers,
-  Menu,
-  Pencil,
-  Settings,
-  Users,
-  Megaphone,
-  Workflow,
-  LayoutPanelTop,
-  BarChart2Icon,
-} from "lucide-react"
+import { ChevronDown, Globe, Home, Layers, Menu, Pencil, Settings, Users, Megaphone, Workflow, LayoutPanelTop, BarChart2Icon, ChevronLeft, ChevronRight } from 'lucide-react'
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { Sheet, SheetContent } from "@/components/ui/sheet"
@@ -27,7 +14,8 @@ export function Sidebar() {
   const router = useRouter()
   const isMobile = useMobile()
   const [isOpen, setIsOpen] = useState(false)
-  const [expandedItems, setExpandedItems] = useState([])
+  const [isCollapsed, setIsCollapsed] = useState(false)
+  const [expandedItems, setExpandedItems] = useState<string[]>([])
 
   useEffect(() => {
     if (isMobile) {
@@ -35,14 +23,33 @@ export function Sidebar() {
     }
   }, [pathname, isMobile])
 
-  const toggleExpanded = (itemName:any) => {
-    setExpandedItems((prev:any) =>
-      prev.includes(itemName) ? prev.filter((item:any) => item !== itemName) : [...prev, itemName],
+  // Auto-expand parent items based on current path
+  useEffect(() => {
+    const currentItem = navItems.find(item => 
+      item.subItems?.some(subItem => pathname === subItem.href) ||
+      (item.href !== "/" && pathname.startsWith(item.href))
     )
+    
+    if (currentItem && currentItem.subItems && !expandedItems.includes(currentItem.name)) {
+      setExpandedItems([currentItem.name])
+    }
+  }, [pathname])
+
+  const toggleExpanded = (itemName: string) => {
+    setExpandedItems((prev) => {
+      // Close all other dropdowns and toggle the clicked one
+      if (prev.includes(itemName)) {
+        return prev.filter((item) => item !== itemName)
+      } else {
+        return [itemName] // Only keep the clicked item open
+      }
+    })
   }
 
-  const handleItemClick = (item:any) => {
+  const handleItemClick = (item: any) => {
     if (item.subItems && item.subItems.length > 0) {
+      // Navigate to parent route and toggle dropdown
+      router.push(item.href)
       toggleExpanded(item.name)
     } else {
       router.push(item.href)
@@ -87,13 +94,13 @@ export function Sidebar() {
     {
       name: "Audience",
       icon: Users,
-      href: "/audience",
+      href: "/audience/contacts",
       subItems: [
         { name: "Audience dashboard", href: "/audience/dashboard" },
         { name: "Tags", href: "/audience/tags" },
         { name: "Segments", href: "/audience/segments" },
         { name: "Surveys", href: "/audience/surveys" },
-        { name: "Inbox", href: "/audience/inbox" },
+        { name: "Inbox", href: "/login" },
       ],
     },
     {
@@ -132,9 +139,9 @@ export function Sidebar() {
     },
   ]
 
-  const SidebarContent = () => (
+  const SidebarContent = ({ collapsed = false }: { collapsed?: boolean }) => (
     <div className="flex h-full w-full flex-col bg-white border-r border-gray-200">
-      {/* Navigation - starts immediately without logo */}
+      {/* Navigation */}
       <nav className="flex-1 overflow-y-auto px-3 py-4 space-y-1">
         {navItems.map((item) => {
           const isActive = pathname === item.href || (item.href !== "/" && pathname.startsWith(item.href))
@@ -144,9 +151,12 @@ export function Sidebar() {
           if (item.isCreateButton) {
             return (
               <Link key={item.name} href={item.href} className="block">
-                <div className="flex items-center gap-3 px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 transition-all duration-200">
-                  <item.icon className="h-4 w-4" />
-                  <span>{item.name}</span>
+                <div className={cn(
+                  "flex items-center gap-3 px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 transition-all duration-200",
+                  collapsed && "justify-center"
+                )}>
+                  <item.icon className="h-4 w-4 flex-shrink-0" />
+                  {!collapsed && <span>{item.name}</span>}
                 </div>
               </Link>
             )
@@ -158,27 +168,32 @@ export function Sidebar() {
                 className={cn(
                   "flex items-center gap-3 px-3 py-2.5 text-sm font-medium rounded-md transition-all duration-200 cursor-pointer",
                   isActive ? "bg-gray-100 text-gray-900" : "text-gray-600 hover:bg-gray-50 hover:text-gray-900",
+                  collapsed && "justify-center"
                 )}
                 onClick={() => handleItemClick(item)}
               >
                 <item.icon className="h-4 w-4 flex-shrink-0" />
-                <span className="flex-1 truncate">{item.name}</span>
-                {item.badge && (
-                  <span className="bg-purple-100 text-purple-700 text-xs font-medium px-2 py-0.5 rounded-full">
-                    {item.badge}
-                  </span>
-                )}
-                {hasSubItems && (
-                  <ChevronDown
-                    className={cn(
-                      "h-4 w-4 flex-shrink-0 transition-transform duration-200",
-                      isExpanded ? "rotate-180" : "",
+                {!collapsed && (
+                  <>
+                    <span className="flex-1 truncate">{item.name}</span>
+                    {item.badge && (
+                      <span className="bg-purple-100 text-purple-700 text-xs font-medium px-2 py-0.5 rounded-full">
+                        {item.badge}
+                      </span>
                     )}
-                  />
+                    {hasSubItems && (
+                      <ChevronDown
+                        className={cn(
+                          "h-4 w-4 flex-shrink-0 transition-transform duration-200",
+                          isExpanded ? "rotate-180" : "",
+                        )}
+                      />
+                    )}
+                  </>
                 )}
               </div>
 
-              {hasSubItems && (
+              {hasSubItems && !collapsed && (
                 <div
                   className={cn(
                     "overflow-hidden transition-all duration-300 ease-in-out",
@@ -211,19 +226,23 @@ export function Sidebar() {
         })}
       </nav>
 
-      {/* Footer with time sensitive note and upgrade button */}
+      {/* Footer */}
       <div className="mt-auto px-3 pb-4 space-y-3">
-        <div className="text-xs text-gray-500 px-3 font-medium">Time sensitive</div>
+        {!collapsed && <div className="text-xs text-gray-500 px-3 font-medium">Time sensitive</div>}
         <Button
-          className="w-full bg-gray-100 border-gray-300 text-gray-700 hover:bg-gray-200 rounded-full font-medium text-sm py-2 h-9 transition-all duration-200 hover:shadow-sm"
+          className={cn(
+            "bg-gray-100 border-gray-300 text-gray-700 hover:bg-gray-200 rounded-full font-medium text-sm py-2 h-9 transition-all duration-200 hover:shadow-sm",
+            collapsed ? "w-10 px-0" : "w-full"
+          )}
           variant="outline"
         >
-          Upgrade
+          {collapsed ? "↑" : "Upgrade"}
         </Button>
       </div>
     </div>
   )
 
+  // Mobile implementation
   if (isMobile) {
     return (
       <>
@@ -246,9 +265,26 @@ export function Sidebar() {
     )
   }
 
+  // Desktop implementation
   return (
-    <div className="hidden lg:flex w-[260px] h-[calc(100vh-56px)] sticky top-14">
-      <SidebarContent />
-    </div>
+    <>
+      <div className={cn(
+        "hidden lg:flex h-[calc(100vh-56px)] sticky top-14 transition-all duration-300",
+        isCollapsed ? "w-[60px]" : "w-[260px]"
+      )}>
+        <SidebarContent collapsed={isCollapsed} />
+      </div>
+
+      {/* Toggle button - bottom right corner */}
+      <Button
+        variant="outline"
+        size="icon"
+        className="hidden lg:flex fixed bottom-6 right-6 z-50 bg-white shadow-lg border-gray-300 h-10 w-10 rounded-full hover:shadow-xl transition-all duration-200"
+        onClick={() => setIsCollapsed(!isCollapsed)}
+      >
+        {isCollapsed ? <ChevronRight className="h-4 w-4" /> : <ChevronLeft className="h-4 w-4" />}
+        <span className="sr-only">Toggle sidebar</span>
+      </Button>
+    </>
   )
 }
