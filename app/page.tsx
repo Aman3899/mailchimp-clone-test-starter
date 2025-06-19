@@ -178,7 +178,7 @@ export default function HomePage() {
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
-        className="fixed right-0 left-[17vw] max-sm:left-0 z-[1000] bg-white shadow-md px-4 sm:px-6 lg:px-8"
+        className="fixed right-0 left-[17vw] max-sm:left-0 z-10 bg-white shadow-md px-4 sm:px-6 lg:px-8"
       >
         <div className="mx-auto max-w-7xl py-4 flex flex-col max-sm:flex-row sm:flex-row justify-between items-start sm:items-center gap-4">
           <h1 className="text-xl font-semibold text-gray-900 md:text-2xl max-sm:text-xl">

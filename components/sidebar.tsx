@@ -3,10 +3,26 @@
 import { useState, useEffect } from "react"
 import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation"
-import { ChevronDown, Globe, Home, Layers, Menu, Pencil, Settings, Users, Megaphone, Workflow, LayoutPanelTop, BarChart2Icon, ChevronLeft, ChevronRight } from 'lucide-react'
+import {
+  ChevronDown,
+  Globe,
+  Home,
+  Layers,
+  Menu,
+  Pencil,
+  Settings,
+  Users,
+  Megaphone,
+  Workflow,
+  LayoutPanelTop,
+  BarChart2Icon,
+  ChevronLeft,
+  ChevronRight,
+} from "lucide-react"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { Sheet, SheetContent } from "@/components/ui/sheet"
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 import { useMobile } from "@/hooks/use-mobile"
 
 export function Sidebar() {
@@ -25,11 +41,12 @@ export function Sidebar() {
 
   // Auto-expand parent items based on current path
   useEffect(() => {
-    const currentItem = navItems.find(item => 
-      item.subItems?.some(subItem => pathname === subItem.href) ||
-      (item.href !== "/" && pathname.startsWith(item.href))
+    const currentItem = navItems.find(
+      (item) =>
+        item.subItems?.some((subItem) => pathname === subItem.href) ||
+        (item.href !== "/" && pathname.startsWith(item.href)),
     )
-    
+
     if (currentItem && currentItem.subItems && !expandedItems.includes(currentItem.name)) {
       setExpandedItems([currentItem.name])
     }
@@ -62,21 +79,25 @@ export function Sidebar() {
       icon: Pencil,
       href: "/",
       isCreateButton: true,
+      description: "Create new campaigns, emails, and content quickly and easily.",
     },
     {
       name: "Home",
       icon: Home,
       href: "/",
+      description: "View and manage your emails, ads, social posts, and landing pages.",
     },
     {
       name: "Campaigns",
       icon: Megaphone,
       href: "/campaigns",
+      description: "Create, manage, and track your email marketing campaigns.",
     },
     {
       name: "Automations",
       icon: Workflow,
       href: "/automations",
+      description: "Set up automated email sequences and workflows to engage your audience.",
       subItems: [
         { name: "All", href: "/automations/all" },
         { name: "Flow", href: "/automations/flow" },
@@ -89,12 +110,14 @@ export function Sidebar() {
       icon: LayoutPanelTop,
       href: "/forms",
       badge: "Beta",
+      description: "Build custom forms to capture leads and grow your audience.",
       subItems: [{ name: "Other forms", href: "/forms/other" }],
     },
     {
       name: "Audience",
       icon: Users,
       href: "/audience/contacts",
+      description: "Manage your contacts, segments, and audience insights.",
       subItems: [
         { name: "Audience dashboard", href: "/audience/dashboard" },
         { name: "Tags", href: "/audience/tags" },
@@ -107,6 +130,7 @@ export function Sidebar() {
       name: "Analytics",
       icon: BarChart2Icon,
       href: "/analytics",
+      description: "Track performance with detailed reports and analytics.",
       subItems: [
         { name: "Reports", href: "/analytics/reports" },
         { name: "Custom reports", href: "/analytics/custom-reports" },
@@ -116,6 +140,7 @@ export function Sidebar() {
       name: "Website",
       icon: Globe,
       href: "/website",
+      description: "Build and customize your website with integrated tools.",
       subItems: [
         { name: "Settings", href: "/website/settings" },
         { name: "Report", href: "/website/report" },
@@ -125,6 +150,7 @@ export function Sidebar() {
       name: "Content",
       icon: Layers,
       href: "/content",
+      description: "Access templates, creative tools, and brand assets.",
       subItems: [
         { name: "Creative Assistant", href: "/content/creative-assistant" },
         { name: "Email templates", href: "/content/email-templates" },
@@ -135,6 +161,7 @@ export function Sidebar() {
       name: "Integrations",
       icon: Settings,
       href: "/integrations",
+      description: "Connect with third-party apps and services.",
       subItems: [{ name: "Manage", href: "/integrations/manage" }],
     },
   ]
@@ -150,48 +177,89 @@ export function Sidebar() {
 
           if (item.isCreateButton) {
             return (
-              <Link key={item.name} href={item.href} className="block">
-                <div className={cn(
-                  "flex items-center gap-3 px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 transition-all duration-200",
-                  collapsed && "justify-center"
-                )}>
-                  <item.icon className="h-4 w-4 flex-shrink-0" />
-                  {!collapsed && <span>{item.name}</span>}
-                </div>
-              </Link>
+              <Tooltip key={item.name}>
+                <TooltipTrigger asChild>
+                  <Link href={item.href} className="block">
+                    <div
+                      className={cn(
+                        "flex items-center gap-3 px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 transition-all duration-200",
+                        collapsed && "justify-center",
+                      )}
+                    >
+                      <item.icon className="h-4 w-4 flex-shrink-0" />
+                      {!collapsed && <span>{item.name}</span>}
+                    </div>
+                  </Link>
+                </TooltipTrigger>
+                {collapsed && (
+                  <TooltipContent
+                    side="right"
+                    className="bg-gray-900 text-white border-gray-700 max-w-xs"
+                    sideOffset={8}
+                  >
+                    <div className="font-medium">{item.name}</div>
+                    <div className="text-sm text-gray-300 mt-1">{item.description}</div>
+                  </TooltipContent>
+                )}
+              </Tooltip>
             )
           }
 
+          const menuItem = (
+            <div
+              className={cn(
+                "flex items-center gap-3 px-3 py-2.5 text-sm font-medium rounded-md transition-all duration-200 cursor-pointer",
+                isActive ? "bg-gray-100 text-gray-900" : "text-gray-600 hover:bg-gray-50 hover:text-gray-900",
+                collapsed && "justify-center",
+              )}
+              onClick={() => handleItemClick(item)}
+            >
+              <item.icon className="h-4 w-4 flex-shrink-0" />
+              {!collapsed && (
+                <>
+                  <span className="flex-1 truncate">{item.name}</span>
+                  {item.badge && (
+                    <span className="bg-purple-100 text-purple-700 text-xs font-medium px-2 py-0.5 rounded-full">
+                      {item.badge}
+                    </span>
+                  )}
+                  {hasSubItems && (
+                    <ChevronDown
+                      className={cn(
+                        "h-4 w-4 flex-shrink-0 transition-transform duration-200",
+                        isExpanded ? "rotate-180" : "",
+                      )}
+                    />
+                  )}
+                </>
+              )}
+            </div>
+          )
+
           return (
             <div key={item.name}>
-              <div
-                className={cn(
-                  "flex items-center gap-3 px-3 py-2.5 text-sm font-medium rounded-md transition-all duration-200 cursor-pointer",
-                  isActive ? "bg-gray-100 text-gray-900" : "text-gray-600 hover:bg-gray-50 hover:text-gray-900",
-                  collapsed && "justify-center"
-                )}
-                onClick={() => handleItemClick(item)}
-              >
-                <item.icon className="h-4 w-4 flex-shrink-0" />
-                {!collapsed && (
-                  <>
-                    <span className="flex-1 truncate">{item.name}</span>
+              {collapsed ? (
+                <Tooltip>
+                  <TooltipTrigger asChild>{menuItem}</TooltipTrigger>
+                  <TooltipContent
+                    side="right"
+                    className="bg-gray-900 text-white border-gray-700 max-w-xs"
+                    sideOffset={8}
+                  >
+                    <div className="font-medium">{item.name}</div>
+                    <div className="text-sm text-gray-300 mt-1">{item.description}</div>
                     {item.badge && (
-                      <span className="bg-purple-100 text-purple-700 text-xs font-medium px-2 py-0.5 rounded-full">
-                        {item.badge}
-                      </span>
+                      <div className="mt-2">
+                        <span className="bg-purple-600 text-purple-100 text-xs font-medium px-2 py-0.5 rounded-full">
+                          {item.badge}
+                        </span>
+                      </div>
                     )}
-                    {hasSubItems && (
-                      <ChevronDown
-                        className={cn(
-                          "h-4 w-4 flex-shrink-0 transition-transform duration-200",
-                          isExpanded ? "rotate-180" : "",
-                        )}
-                      />
-                    )}
-                  </>
-                )}
-              </div>
+                  </TooltipContent>
+                </Tooltip>
+              ) : (
+                menuItem
+              )}
 
               {hasSubItems && !collapsed && (
                 <div
@@ -229,15 +297,25 @@ export function Sidebar() {
       {/* Footer */}
       <div className="mt-auto px-3 pb-4 space-y-3">
         {!collapsed && <div className="text-xs text-gray-500 px-3 font-medium">Time sensitive</div>}
-        <Button
-          className={cn(
-            "bg-gray-100 border-gray-300 text-gray-700 hover:bg-gray-200 rounded-full font-medium text-sm py-2 h-9 transition-all duration-200 hover:shadow-sm",
-            collapsed ? "w-10 px-0" : "w-full"
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Button
+              className={cn(
+                "bg-gray-100 border-gray-300 text-gray-700 hover:bg-gray-200 rounded-full font-medium text-sm py-2 h-9 transition-all duration-200 hover:shadow-sm",
+                collapsed ? "w-10 px-0" : "w-full",
+              )}
+              variant="outline"
+            >
+              {collapsed ? "↑" : "Upgrade"}
+            </Button>
+          </TooltipTrigger>
+          {collapsed && (
+            <TooltipContent side="right" className="bg-gray-900 text-white border-gray-700" sideOffset={8}>
+              <div className="font-medium">Upgrade</div>
+              <div className="text-sm text-gray-300 mt-1">Unlock premium features and advanced tools</div>
+            </TooltipContent>
           )}
-          variant="outline"
-        >
-          {collapsed ? "↑" : "Upgrade"}
-        </Button>
+        </Tooltip>
       </div>
     </div>
   )
@@ -245,7 +323,7 @@ export function Sidebar() {
   // Mobile implementation
   if (isMobile) {
     return (
-      <>
+      <TooltipProvider delayDuration={300}>
         <Button
           variant="ghost"
           size="icon"
@@ -261,30 +339,39 @@ export function Sidebar() {
             <SidebarContent />
           </SheetContent>
         </Sheet>
-      </>
+      </TooltipProvider>
     )
   }
 
   // Desktop implementation
   return (
-    <>
-      <div className={cn(
-        "hidden lg:flex h-[calc(100vh-56px)] sticky top-14 transition-all duration-300",
-        isCollapsed ? "w-[60px]" : "w-[260px]"
-      )}>
+    <TooltipProvider delayDuration={300}>
+      <div
+        className={cn(
+          "hidden lg:flex h-[calc(100vh-56px)] sticky top-14 transition-all duration-300",
+          isCollapsed ? "w-[60px]" : "w-[260px]",
+        )}
+      >
         <SidebarContent collapsed={isCollapsed} />
       </div>
 
       {/* Toggle button - bottom right corner */}
-      <Button
-        variant="outline"
-        size="icon"
-        className="hidden lg:flex fixed bottom-6 right-6 z-50 bg-white shadow-lg border-gray-300 h-10 w-10 rounded-full hover:shadow-xl transition-all duration-200"
-        onClick={() => setIsCollapsed(!isCollapsed)}
-      >
-        {isCollapsed ? <ChevronRight className="h-4 w-4" /> : <ChevronLeft className="h-4 w-4" />}
-        <span className="sr-only">Toggle sidebar</span>
-      </Button>
-    </>
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <Button
+            variant="outline"
+            size="icon"
+            className="hidden lg:flex fixed bottom-6 right-6 z-50 bg-white shadow-lg border-gray-300 h-10 w-10 rounded-full hover:shadow-xl transition-all duration-200"
+            onClick={() => setIsCollapsed(!isCollapsed)}
+          >
+            {isCollapsed ? <ChevronRight className="h-4 w-4" /> : <ChevronLeft className="h-4 w-4" />}
+            <span className="sr-only">Toggle sidebar</span>
+          </Button>
+        </TooltipTrigger>
+        <TooltipContent side="left" className="bg-gray-900 text-white border-gray-700" sideOffset={8}>
+          {isCollapsed ? "Expand sidebar" : "Collapse sidebar"}
+        </TooltipContent>
+      </Tooltip>
+    </TooltipProvider>
   )
 }
