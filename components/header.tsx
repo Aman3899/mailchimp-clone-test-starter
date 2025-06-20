@@ -51,19 +51,19 @@ export function Header() {
 
   const helpArticles = [
     {
-      title: "Import Contacts to Mailchimp",
-      type: "External",
-      author: "by Mailchimp",
-      description:
-        "Our import tool helps you add or update email contacts in Mailchimp. Import from a connected app, upload a comma-separated value file (CSV), copy and paste contacts, or add them one by one. Learn about the different import methods and best practices for organizing your audience data.",
-      category: "Getting Started",
-    },
-    {
       title: "Getting Started with Mailchimp",
       type: "External",
       author: "by Mailchimp",
       description:
         "Mailchimp is an all-in-one marketing platform that helps you manage and talk to your clients, customers, and other interested parties. This comprehensive guide covers account setup, audience building, campaign creation, and essential features to get you started on your marketing journey.",
+      category: "Getting Started",
+    },
+    {
+      title: "Import Contacts to Mailchimp",
+      type: "External",
+      author: "by Mailchimp",
+      description:
+        "Our import tool helps you add or update email contacts in Mailchimp. Import from a connected app, upload a comma-separated value file (CSV), copy and paste contacts, or add them one by one. Learn about the different import methods and best practices for organizing your audience data.",
       category: "Getting Started",
     },
     {
@@ -146,6 +146,38 @@ export function Header() {
         "Optimize your emails for mobile devices where most emails are opened. Learn about responsive design techniques, mobile-friendly layouts, touch-friendly buttons, and testing strategies to ensure great mobile experiences.",
       category: "Design",
     },
+    {
+      title: "Advanced Segmentation Strategies",
+      type: "External",
+      author: "by Mailchimp",
+      description:
+        "Create highly targeted segments based on subscriber behavior, demographics, and engagement patterns. Learn advanced segmentation techniques to deliver personalized content that resonates with different audience groups.",
+      category: "Audience",
+    },
+    {
+      title: "Email Deliverability Best Practices",
+      type: "External",
+      author: "by Mailchimp",
+      description:
+        "Ensure your emails reach the inbox with proper authentication, list hygiene, and sender reputation management. Learn about SPF, DKIM, DMARC records, and strategies to improve your email deliverability rates.",
+      category: "Deliverability",
+    },
+    {
+      title: "Creating Effective Landing Pages",
+      type: "External",
+      author: "by Mailchimp",
+      description:
+        "Build high-converting landing pages that complement your email campaigns. Learn about design principles, copywriting techniques, form optimization, and conversion tracking to maximize your marketing ROI.",
+      category: "Landing Pages",
+    },
+    {
+      title: "Social Media Integration",
+      type: "External",
+      author: "by Mailchimp",
+      description:
+        "Connect your email marketing with social media platforms to expand your reach and engagement. Learn how to sync audiences, create social ads, and track cross-platform campaign performance.",
+      category: "Integrations",
+    },
   ]
 
   const handleHelpOpen = () => {
@@ -193,7 +225,7 @@ export function Header() {
             <Input
               type="search"
               placeholder="Search..."
-              className="w-full rounded-none pl-10 pr-4 bg-white border-gray-300 focus:bg-white focus:ring-2 focus:ring-teal-500 focus:border-transparent"
+              className="w-full rounded-lg pl-10 pr-4 bg-white border-gray-300 focus:bg-white focus:ring-2 focus:ring-teal-500 focus:border-transparent"
               onClick={() => setIsSearchOpen(true)}
               readOnly
             />
@@ -206,7 +238,7 @@ export function Header() {
           <Button
             variant="outline"
             size="sm"
-            className="text-gray-600 hover:text-gray-900 border-gray-300 bg-white hover:bg-gray-50 rounded-none hidden sm:flex"
+            className="text-gray-600 hover:text-gray-900 border-gray-300 bg-white hover:bg-gray-50 rounded-lg hidden sm:flex"
             onClick={handleHelpOpen}
           >
             Help
@@ -393,14 +425,16 @@ export function Header() {
       {/* Help Panel */}
       <div
         className={cn(
-          "fixed top-14 right-0 h-[calc(100vh-56px)] w-96 bg-white border-l shadow-2xl transform transition-transform duration-300 ease-in-out z-40",
+          "fixed top-14 right-0 h-[calc(100vh-56px)] w-96 bg-white border-l shadow-2xl transform transition-transform duration-300 ease-in-out z-40 flex flex-col",
           isHelpOpen ? "translate-x-0" : "translate-x-full",
           isMobile && "w-full",
         )}
       >
-        {/* Help Header */}
-        <div className="flex items-center justify-between p-4 border-b bg-white">
-          <h2 className="text-lg font-semibold text-gray-900">Help & Support</h2>
+        {/* Help Header - Fixed */}
+        <div className="h-1 bg-orange-400"></div>
+        <div className="flex items-center justify-between p-4 border-b bg-white flex-shrink-0">
+          <p>  </p>
+          <h2 className="text-lg text-gray-900">Help & Support</h2>
           <Button
             variant="ghost"
             size="icon"
@@ -411,14 +445,14 @@ export function Header() {
           </Button>
         </div>
 
-        {/* Help Search */}
-        <div className="p-4 border-b bg-gray-50">
+        {/* Help Search - Fixed */}
+        <div className="p-4 border-b bg-gray-100 flex-shrink-0">
           <div className="relative">
             <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
             <Input
               type="search"
               placeholder="Search help center"
-              className="w-full pl-10 pr-4 bg-gray-50 border-gray-200 focus:bg-white focus:ring-2 focus:ring-teal-500 focus:border-transparent"
+              className="w-full pl-10 pr-4 bg-white border-gray-300 focus:bg-white focus:ring-2 focus:ring-teal-500 focus:border-transparent rounded-lg"
               value={helpSearchQuery}
               onChange={(e) => setHelpSearchQuery(e.target.value)}
             />
@@ -426,17 +460,17 @@ export function Header() {
         </div>
 
         {/* Help Content - Scrollable */}
-        <div className="flex-1 overflow-y-auto p-4">
-          <div className="mb-6">
+        <div className="flex-1 overflow-y-auto">
+          <div className="p-4">
             <h3 className="text-base font-semibold text-gray-900 mb-4">People like you viewed these answers</h3>
 
             {isHelpLoading ? (
               <HelpSkeleton />
             ) : (
-              <div className="space-y-6">
+              <div className="space-y-6 pb-6">
                 {helpArticles.map((article, index) => (
                   <div key={index} className="cursor-pointer hover:bg-gray-50 p-3 rounded-lg transition-colors group">
-                    <h4 className="font-medium text-teal-600 hover:text-teal-700 mb-2 group-hover:underline">
+                    <h4 className="font-medium text-teal-600 hover:text-teal-700 mb-2 group-hover:underline text-sm">
                       {article.title}
                     </h4>
                     <div className="flex items-center gap-2 mb-2 text-xs text-gray-500">
@@ -452,11 +486,11 @@ export function Header() {
           </div>
         </div>
 
-        {/* Help Footer - Styled Contact Us Button */}
-        <div className="p-4 border-t bg-gray-50">
+        {/* Help Footer - Fixed Contact Us Button */}
+        <div className="flex justify-center items-center p-4 border-t bg-gray-100 flex-shrink-0 h-24">
           <Button
             variant="outline"
-            className="w-full border-2 border-teal-600 text-teal-600 bg-white hover:bg-teal-50 hover:text-teal-700 hover:border-teal-700 rounded-none font-medium py-2 h-10 transition-all duration-200"
+            className="w-2/5 border-2 border-teal-600 text-teal-600 bg-white hover:bg-teal-50 hover:text-teal-700 hover:border-teal-700 rounded-lg font-medium py-2 h-9 transition-all duration-200"
           >
             <MessageCircle className="w-4 h-4 mr-2" />
             Contact Us

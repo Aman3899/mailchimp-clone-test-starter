@@ -1,17 +1,16 @@
-import type React from "react";
-import type { Metadata } from "next";
-import { Inter } from "next/font/google";
-import "./globals.css";
-import { ThemeProvider } from "@/components/theme-provider";
-import { Sidebar } from "@/components/sidebar";
-import { Header } from "@/components/header";
-import { AlertBanner } from "@/components/alert-banner";
+import type { Metadata } from 'next';
+import { Inter } from 'next/font/google';
+import './globals.css';
+import { ThemeProvider } from '@/components/theme-provider';
+import { Sidebar } from '@/components/sidebar';
+import { Header } from '@/components/header';
+import { AlertBanner } from '@/components/alert-banner';
 
-const inter = Inter({ subsets: ["latin"] });
+const inter = Inter({ subsets: ['latin'] });
 
 export const metadata: Metadata = {
-  title: "Mailchimp Clone",
-  description: "A front-end clone of Mailchimp",
+  title: 'Mailchimp Clone',
+  description: 'A front-end clone of Mailchimp',
 };
 
 export default function RootLayout({
@@ -20,7 +19,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <body className={inter.className}>
         <ThemeProvider
           attribute="class"

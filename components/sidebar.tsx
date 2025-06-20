@@ -32,6 +32,18 @@ export function Sidebar() {
   const [isOpen, setIsOpen] = useState(false)
   const [isCollapsed, setIsCollapsed] = useState(false)
   const [expandedItems, setExpandedItems] = useState<string[]>([])
+  const [isTablet, setIsTablet] = useState(false)
+
+  // Check for tablet size
+  useEffect(() => {
+    const checkTabletSize = () => {
+      setIsTablet(window.innerWidth >= 768 && window.innerWidth < 1024)
+    }
+
+    checkTabletSize()
+    window.addEventListener("resize", checkTabletSize)
+    return () => window.removeEventListener("resize", checkTabletSize)
+  }, [])
 
   useEffect(() => {
     if (isMobile) {
@@ -85,19 +97,19 @@ export function Sidebar() {
       name: "Home",
       icon: Home,
       href: "/",
-      description: "View and manage your emails, ads, social posts, and landing pages.",
+      description: "View a snapshot of your recent marketing performance and audience growth.",
     },
     {
       name: "Campaigns",
       icon: Megaphone,
       href: "/campaigns",
-      description: "Create, manage, and track your email marketing campaigns.",
+      description: "View and manage your emails, ads, social posts, and landing pages.",
     },
     {
       name: "Automations",
       icon: Workflow,
       href: "/automations",
-      description: "Set up automated email sequences and workflows to engage your audience.",
+      description: "Map out a marketing automation flow that delivers a unique experience to each of your contacts.",
       subItems: [
         { name: "All", href: "/automations/all" },
         { name: "Flow", href: "/automations/flow" },
@@ -110,14 +122,14 @@ export function Sidebar() {
       icon: LayoutPanelTop,
       href: "/forms",
       badge: "Beta",
-      description: "Build custom forms to capture leads and grow your audience.",
+      description: "Design and publish high-converting pop-up that precisely target your audience.",
       subItems: [{ name: "Other forms", href: "/forms/other" }],
     },
     {
       name: "Audience",
       icon: Users,
       href: "/audience/contacts",
-      description: "Manage your contacts, segments, and audience insights.",
+      description: "View a list of all contacts in your audience.",
       subItems: [
         { name: "Audience dashboard", href: "/audience/dashboard" },
         { name: "Tags", href: "/audience/tags" },
@@ -130,7 +142,7 @@ export function Sidebar() {
       name: "Analytics",
       icon: BarChart2Icon,
       href: "/analytics",
-      description: "Track performance with detailed reports and analytics.",
+      description: "Track the performance of your email and SMS campaigns with near real-time analytics.",
       subItems: [
         { name: "Reports", href: "/analytics/reports" },
         { name: "Custom reports", href: "/analytics/custom-reports" },
@@ -140,7 +152,7 @@ export function Sidebar() {
       name: "Website",
       icon: Globe,
       href: "/website",
-      description: "Build and customize your website with integrated tools.",
+      description: "Create and manage a website that comes with built-in marketing tools.",
       subItems: [
         { name: "Settings", href: "/website/settings" },
         { name: "Report", href: "/website/report" },
@@ -150,7 +162,7 @@ export function Sidebar() {
       name: "Content",
       icon: Layers,
       href: "/content",
-      description: "Access templates, creative tools, and brand assets.",
+      description: "Upload and manage creative assets to use in your campaigns.",
       subItems: [
         { name: "Creative Assistant", href: "/content/creative-assistant" },
         { name: "Email templates", href: "/content/email-templates" },
@@ -161,12 +173,15 @@ export function Sidebar() {
       name: "Integrations",
       icon: Settings,
       href: "/integrations",
-      description: "Connect with third-party apps and services.",
+      description: "Discover new integrations.",
       subItems: [{ name: "Manage", href: "/integrations/manage" }],
     },
   ]
 
-  const SidebarContent = ({ collapsed = false }: { collapsed?: boolean }) => (
+  const SidebarContent = ({
+    collapsed = false,
+    showTooltips = true,
+  }: { collapsed?: boolean; showTooltips?: boolean }) => (
     <div className="flex h-full w-full flex-col bg-white border-r border-gray-200">
       {/* Navigation */}
       <nav className="flex-1 overflow-y-auto px-3 py-4 space-y-1">
@@ -176,32 +191,30 @@ export function Sidebar() {
           const hasSubItems = item.subItems && item.subItems.length > 0
 
           if (item.isCreateButton) {
+            const createButton = (
+              <Link href={item.href} className="block">
+                <div
+                  className={cn(
+                    "flex items-center gap-3 px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 transition-all duration-200",
+                    collapsed && "justify-center",
+                  )}
+                >
+                  <item.icon className="h-4 w-4 flex-shrink-0" />
+                  {!collapsed && <span>{item.name}</span>}
+                </div>
+              </Link>
+            )
+
             return (
-              <Tooltip key={item.name}>
-                <TooltipTrigger asChild>
-                  <Link href={item.href} className="block">
-                    <div
-                      className={cn(
-                        "flex items-center gap-3 px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 transition-all duration-200",
-                        collapsed && "justify-center",
-                      )}
-                    >
-                      <item.icon className="h-4 w-4 flex-shrink-0" />
-                      {!collapsed && <span>{item.name}</span>}
-                    </div>
-                  </Link>
-                </TooltipTrigger>
-                {collapsed && (
-                  <TooltipContent
-                    side="right"
-                    className="bg-gray-900 text-white border-gray-700 max-w-xs"
-                    sideOffset={8}
-                  >
-                    <div className="font-medium">{item.name}</div>
-                    <div className="text-sm text-gray-300 mt-1">{item.description}</div>
-                  </TooltipContent>
+              <div key={item.name}>
+                {showTooltips ? (
+                  <Tooltip>
+                    <TooltipTrigger asChild>{createButton}</TooltipTrigger>
+                  </Tooltip>
+                ) : (
+                  createButton
                 )}
-              </Tooltip>
+              </div>
             )
           }
 
@@ -238,16 +251,16 @@ export function Sidebar() {
 
           return (
             <div key={item.name}>
-              {collapsed ? (
+              {showTooltips ? (
                 <Tooltip>
                   <TooltipTrigger asChild>{menuItem}</TooltipTrigger>
                   <TooltipContent
                     side="right"
-                    className="bg-gray-900 text-white border-gray-700 max-w-xs"
-                    sideOffset={8}
+                    className="bg-gray-900 text-white border-gray-700 w-6/12 z-50"
+                    sideOffset={12}
+                    avoidCollisions={true}
                   >
-                    <div className="font-medium">{item.name}</div>
-                    <div className="text-sm text-gray-300 mt-1">{item.description}</div>
+                    <div className="text-xs text-gray-300 mt-1">{item.description}</div>
                     {item.badge && (
                       <div className="mt-2">
                         <span className="bg-purple-600 text-purple-100 text-xs font-medium px-2 py-0.5 rounded-full">
@@ -271,9 +284,8 @@ export function Sidebar() {
                   <div className="ml-7 mt-1 space-y-0.5 border-l border-gray-200 pl-3">
                     {item.subItems?.map((subItem) => {
                       const isSubActive = pathname === subItem.href
-                      return (
+                      const subItemLink = (
                         <Link
-                          key={subItem.name}
                           href={subItem.href}
                           className={cn(
                             "block px-3 py-1 text-sm rounded-md transition-all duration-200",
@@ -285,6 +297,28 @@ export function Sidebar() {
                           {subItem.name}
                         </Link>
                       )
+
+                      return (
+                        <div key={subItem.name}>
+                          {showTooltips ? (
+                            <Tooltip>
+                              <TooltipTrigger asChild>{subItemLink}</TooltipTrigger>
+                              <TooltipContent
+                                side="right"
+                                className="bg-gray-900 text-white border-gray-700 max-w-xs z-50"
+                                sideOffset={12}
+                                avoidCollisions={true}
+                              >
+                                <div className="text-xs text-gray-300 mt-1">
+                                  Navigate to {subItem.name.toLowerCase()} section
+                                </div>
+                              </TooltipContent>
+                            </Tooltip>
+                          ) : (
+                            subItemLink
+                          )}
+                        </div>
+                      )
                     })}
                   </div>
                 </div>
@@ -295,48 +329,73 @@ export function Sidebar() {
       </nav>
 
       {/* Footer */}
-      <div className="mt-auto px-3 pb-4 space-y-3">
-        {!collapsed && <div className="text-xs text-gray-500 px-3 font-medium">Time sensitive</div>}
+      <div className="flex flex-col justify-center items-center mt-auto px-3 pb-8 space-y-3 bg-gray-50 mx-2 my-5 p-2 rounded-md shadow-sm border-2 ">
+        {!collapsed && <div className="text-xs text-gray-500 px-3 font-bold">Time sensitive</div>}
         <Tooltip>
           <TooltipTrigger asChild>
             <Button
               className={cn(
-                "bg-gray-100 border-gray-300 text-gray-700 hover:bg-gray-200 rounded-full font-medium text-sm py-2 h-9 transition-all duration-200 hover:shadow-sm",
-                collapsed ? "w-10 px-0" : "w-full",
+                "bg-gray-200 border-gray-300 text-gray-700 hover:bg-gray-200 rounded-full font-medium text-sm py-2 h-9 transition-all duration-200 hover:shadow-sm",
+                collapsed ? "w-10 px-0" : "w-2/3",
               )}
               variant="outline"
             >
               {collapsed ? "↑" : "Upgrade"}
             </Button>
           </TooltipTrigger>
-          {collapsed && (
-            <TooltipContent side="right" className="bg-gray-900 text-white border-gray-700" sideOffset={8}>
-              <div className="font-medium">Upgrade</div>
-              <div className="text-sm text-gray-300 mt-1">Unlock premium features and advanced tools</div>
-            </TooltipContent>
-          )}
+          <TooltipContent
+            side="right"
+            className="bg-gray-900 text-white border-gray-700 z-50"
+            sideOffset={12}
+            avoidCollisions={true}
+          >
+            <div className="text-xs text-gray-300 mt-1">Unlock premium features and advanced tools</div>
+          </TooltipContent>
         </Tooltip>
       </div>
     </div>
   )
 
-  // Mobile implementation
+  // Mobile implementation (phones)
   if (isMobile) {
     return (
-      <TooltipProvider delayDuration={300}>
+      <TooltipProvider delayDuration={200}>
         <Button
           variant="ghost"
           size="icon"
-          className="lg:hidden fixed top-16 left-4 z-40 bg-white shadow-sm border border-gray-200 h-9 w-9"
+          className="lg:hidden fixed top-16 left-4 z-40 bg-white shadow-sm border border-gray-200 h-9 w-9 md:h-10 md:w-10"
           onClick={() => setIsOpen(true)}
         >
-          <Menu className="h-4 w-4" />
+          <Menu className="h-4 w-4 md:h-5 md:w-5" />
           <span className="sr-only">Toggle menu</span>
         </Button>
 
         <Sheet open={isOpen} onOpenChange={setIsOpen}>
-          <SheetContent side="left" className="p-0 w-[260px] mt-14" overlayClassName="lg:hidden">
-            <SidebarContent />
+          <SheetContent side="left" className="p-0 w-[280px] sm:w-[320px] mt-14" overlayClassName="lg:hidden">
+            <SidebarContent showTooltips={false} />
+          </SheetContent>
+        </Sheet>
+      </TooltipProvider>
+    )
+  }
+
+  // Tablet implementation
+  if (isTablet) {
+    return (
+      <TooltipProvider delayDuration={200}>
+        <Button
+          variant="ghost"
+          size="icon"
+          className="lg:hidden fixed top-16 left-4 z-40 bg-white shadow-sm border border-gray-200 h-10 w-10"
+          onClick={() => setIsOpen(true)}
+        >
+          <Menu className="h-5 w-5" />
+          <span className="sr-only">Toggle menu</span>
+        </Button>
+
+        <Sheet open={isOpen} onOpenChange={setIsOpen}>
+          <SheetContent side="left" className="p-0 w-[300px] mt-14" overlayClassName="lg:hidden">
+            <SidebarContent showTooltips={true} />
           </SheetContent>
         </Sheet>
       </TooltipProvider>
@@ -345,14 +404,14 @@ export function Sidebar() {
 
   // Desktop implementation
   return (
-    <TooltipProvider delayDuration={300}>
+    <TooltipProvider delayDuration={200}>
       <div
         className={cn(
-          "hidden lg:flex h-[calc(100vh-56px)] sticky top-14 transition-all duration-300",
+          "hidden lg:flex h-[calc(100vh-56px)] sticky top-14 transition-all duration-300 z-30",
           isCollapsed ? "w-[60px]" : "w-[260px]",
         )}
       >
-        <SidebarContent collapsed={isCollapsed} />
+        <SidebarContent collapsed={isCollapsed} showTooltips={true} />
       </div>
 
       {/* Toggle button - bottom right corner */}
@@ -368,7 +427,12 @@ export function Sidebar() {
             <span className="sr-only">Toggle sidebar</span>
           </Button>
         </TooltipTrigger>
-        <TooltipContent side="left" className="bg-gray-900 text-white border-gray-700" sideOffset={8}>
+        <TooltipContent
+          side="left"
+          className="bg-gray-900 text-white border-gray-700 z-50"
+          sideOffset={8}
+          avoidCollisions={true}
+        >
           {isCollapsed ? "Expand sidebar" : "Collapse sidebar"}
         </TooltipContent>
       </Tooltip>
